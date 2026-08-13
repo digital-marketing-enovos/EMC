@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/* Design tokens — mirrors src/lib/theme.ts. Keep the two in sync. */
+@theme {
+  --color-bg: #f4f2ed;
+  --color-surface: #ffffff;
+  --color-ink: #18140f;
+  --color-t2: #5c5650;
+  --color-t3: #9e988f;
+  --color-line: #ded9d0;
+  --color-accent: #f18500;
+  --color-fire: #c25a0c;
+  --color-water: #2e7b96;
+  --color-earth: #4a7a4e;
+  --color-air: #5f6b7e;
+
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), "Courier New", monospace;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* No pinch-zoom needed to read an option: nothing may exceed the viewport. */
+body {
+  overflow-x: hidden;
+}
+
+/* ── Facilitator results screen ───────────────────────────────
+   One screenful: the matrix takes every pixel the header, the two
+   controls and the read-out column leave it. Nothing scrolls. */
+.rb-root {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 1.8vh 1.6vw;
+  box-sizing: border-box;
+  gap: 1.2vh;
+}
+.rb-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+}
+.rb-stage {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Square card: the matrix is square, so the border hugs it rather than
+   floating in a wide empty panel. Height is the binding constraint on 16:9. */
+.rb-canvas {
+  height: 100%;
+  aspect-ratio: 1;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.rb-side {
+  width: clamp(240px, 21vw, 340px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Below this, side by side stops paying: stack and let the page scroll. */
+@media (max-width: 1000px) {
+  .rb-root {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .rb-main {
+    flex-direction: column;
+  }
+  .rb-canvas {
+    height: auto;
+    width: 100%;
+    max-height: none;
+  }
+  .rb-side {
+    width: auto;
+    overflow: visible;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  }
+}
+
+input:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  opacity: 0.25;
+}
