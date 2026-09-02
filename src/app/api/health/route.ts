@@ -1,4 +1,4 @@
-import { hasDatabase, query } from "@/lib/db";
+import { databaseSource, hasDatabase, query } from "@/lib/db";
 import { json } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +12,13 @@ export const dynamic = "force-dynamic";
  * the host, or a driver stack trace.
  */
 export async function GET() {
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     return json({
       ok: false,
       databaseUrlSet: false,
       canConnect: null,
       schemaReady: null,
-      hint: "Set DATABASE_URL in the Vercel project's environment variables, then redeploy.",
+      hint: "No environment variable holds a postgres:// URL. Connect the database to this Vercel project, then redeploy — variables are only read at build time.",
     });
   }
 
@@ -28,6 +28,7 @@ export async function GET() {
     return json({
       ok: false,
       databaseUrlSet: true,
+      readFrom: databaseSource(),
       canConnect: false,
       schemaReady: null,
       hint: "DATABASE_URL is set but the database refused the connection. Check the credentials, and that the string ends with ?sslmode=require.",
@@ -52,6 +53,7 @@ export async function GET() {
     return json({
       ok: false,
       databaseUrlSet: true,
+      readFrom: databaseSource(),
       canConnect: true,
       schemaReady: false,
       missingTables: missing,
@@ -59,5 +61,5 @@ export async function GET() {
     });
   }
 
-  return json({ ok: true, databaseUrlSet: true, canConnect: true, schemaReady: true });
+  return json({ ok: true, databaseUrlSet: true, readFrom: databaseSource(), canConnect: true, schemaReady: true });
 }

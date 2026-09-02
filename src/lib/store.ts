@@ -96,7 +96,7 @@ const toSession = (r: SessionRow): Session => ({
 export async function createSession(title: string): Promise<Session> {
   const clean = title.trim().slice(0, 80) || "Cultural Compass";
 
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     const mem = memory();
     let code = makeCode();
     while (mem.sessions.some((s) => s.code === code)) code = makeCode();
@@ -130,7 +130,7 @@ export async function getSessionByCode(code: string): Promise<Session | null> {
   const wanted = normaliseCode(code);
   if (!wanted) return null;
 
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     return memory().sessions.find((s) => s.code === wanted) ?? null;
   }
   const rows = await query<SessionRow>(
@@ -141,7 +141,7 @@ export async function getSessionByCode(code: string): Promise<Session | null> {
 }
 
 export async function closeSession(id: string): Promise<void> {
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     const s = memory().sessions.find((x) => x.id === id);
     if (s && !s.closedAt) s.closedAt = new Date().toISOString();
     return;
@@ -182,7 +182,7 @@ export async function addResponse(input: {
 }): Promise<StoredResponse> {
   const label = input.label?.trim().slice(0, LABEL_MAX) || null;
 
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     const response: StoredResponse = {
       id: randomUUID(),
       sessionId: input.sessionId,
@@ -214,7 +214,7 @@ export async function addResponse(input: {
 }
 
 export async function listResponses(sessionId: string): Promise<StoredResponse[]> {
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     return memory()
       .responses.filter((r) => r.sessionId === sessionId)
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
@@ -228,7 +228,7 @@ export async function listResponses(sessionId: string): Promise<StoredResponse[]
 }
 
 export async function countResponses(sessionId: string): Promise<number> {
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     return memory().responses.filter((r) => r.sessionId === sessionId).length;
   }
   const rows = await query<{ n: string }>(
@@ -241,7 +241,7 @@ export async function countResponses(sessionId: string): Promise<number> {
 export async function getResponse(id: string): Promise<StoredResponse | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
 
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     return memory().responses.find((r) => r.id === id) ?? null;
   }
   const rows = await query<ResponseRow>(

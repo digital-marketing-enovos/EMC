@@ -33,7 +33,7 @@ type Row = { id: number; theme: string; stem: string; low: string; high: string 
 
 /** Overrides currently stored — may be empty or cover only some items. */
 export async function getOverrides(): Promise<ItemTextMap> {
-  if (!hasDatabase) return { ...memory() };
+  if (!hasDatabase()) return { ...memory() };
   const rows = await query<Row>(`SELECT id, theme, stem, low, high FROM item_texts`);
   const out: ItemTextMap = {};
   for (const r of rows) {
@@ -92,7 +92,7 @@ export async function saveTexts(input: unknown): Promise<SaveResult> {
   }
   if (!parsed.length) return { ok: false, error: "nothing to save" };
 
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     const mem = memory();
     for (const [id, t] of parsed) mem[id] = t;
     return { ok: true };
@@ -115,7 +115,7 @@ export async function saveTexts(input: unknown): Promise<SaveResult> {
 export async function resetTexts(id?: number): Promise<void> {
   if (id !== undefined && !DEFAULT_TEXTS[id]) return;
 
-  if (!hasDatabase) {
+  if (!hasDatabase()) {
     if (id === undefined) globalThis.__ccTexts = {};
     else delete memory()[id];
     return;
