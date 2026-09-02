@@ -147,6 +147,10 @@ function LinkRow({ name, href }: { name: string; href: string }) {
       <div style={label}>{name}</div>
       <a
         href={href}
+        // New tab: this panel shows the facilitator key once and cannot show it
+        // again. Navigating away from it loses access to the results screen.
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
           fontFamily: FM,
           fontSize: "13px",
