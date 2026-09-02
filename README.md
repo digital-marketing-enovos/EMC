@@ -32,6 +32,14 @@ npm run db:migrate                     # applies db/schema.sql
 node scripts/seed.mjs --n 15 --burst   # 15 simultaneous submissions against a running server
 ```
 
+## Checking the deployment
+
+`GET /api/health` reports whether `DATABASE_URL` is set, whether the database
+accepts the connection, and whether the tables exist. A misconfigured database
+makes every screen fail with the same opaque 500, and the three causes need
+three different fixes; this says which one it is. It returns booleans only —
+never the connection string or a driver error.
+
 ## Deploying
 
 1. Create a Postgres database (Neon or Supabase; any Postgres works).
