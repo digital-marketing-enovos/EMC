@@ -13,6 +13,7 @@ Typeface: DM Sans throughout, DM Mono for figures and coordinates.
 | `/s/[code]/present` | facilitator | Projected join screen: QR code, join URL, live count. |
 | `/s/[code]/results?k=[secret]` | facilitator | The debrief screen, full-screen matrix. A wrong or missing `k` is a 404. |
 | `/admin?k=[ADMIN_KEY]` | facilitator | Edit the wording of the twelve items. |
+| `/admin/sessions?k=[ADMIN_KEY]` | facilitator | Every past session: results, CSV, delete. |
 
 ## Local development
 
@@ -87,6 +88,18 @@ coordinate, including those of responses already collected. `content.test.ts` as
 that rewording all twelve items leaves the scores identical.
 
 Each item carries a "Restore default" button, and there is one for all twelve.
+
+## Past sessions
+
+`/admin/sessions` lists every session with its response count, and rebuilds the
+results and CSV links from the stored secret — so a session survives losing the
+link printed at creation. Deleting one destroys its responses with it: Postgres
+cascades through the foreign key, and `store.test.ts` asserts the in-memory
+store does the same rather than leaving orphans behind.
+
+Both admin screens ask for the key when the URL does not carry one, because the
+link that reaches them cannot. The API routes behind them still answer 404
+without it.
 
 ## Where things live
 

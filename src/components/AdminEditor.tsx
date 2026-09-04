@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DISPLAY_ORDER, ITEMS, type Item } from "@/lib/items";
 import type { ItemText, ItemTextMap } from "@/lib/content";
 import { C, DISPLAY_TRACKING, DISPLAY_WEIGHT, FB, FD, FM } from "@/lib/theme";
+import { AdminNav } from "./AdminNav";
 import { ItemCard } from "./ItemCard";
 
 const POLE_NAME: Record<"X" | "Y", { low: string; high: string }> = {
@@ -105,8 +106,8 @@ export function AdminEditor({
   return (
     <div style={{ minHeight: "100vh", background: C.bg, padding: "28px 16px 80px" }}>
       <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+        <AdminNav adminKey={adminKey} current="items" />
         <header style={{ marginBottom: "20px" }}>
-          <p style={{ ...legend, marginBottom: "8px" }}>Cultural Compass · content</p>
           <h1
             style={{
               fontFamily: FD,

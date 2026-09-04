@@ -251,3 +251,45 @@ export async function getResponse(id: string): Promise<StoredResponse | null> {
   );
   return rows.length ? toResponse(rows[0]) : null;
 }
+
+// ─── SESSION ADMINISTRATION ────────────────────────────────────
+
+export type SessionSummary = Session & { responseCount: number };
+
+/** Every session, newest first, with how many responses each holds. */
+export async function listSessions(): Promise<SessionSummary[]> {
+  if (!hasDatabase()) {
+    const mem = memory();
+    return [...mem.sessions]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((s) => ({
+        ...s,
+        responseCount: mem.responses.filter((r) => r.sessionId === s.id).length,
+      }));
+  }
+  const rows = await query<SessionRow & { response_count: number }>(
+    `SELECT s.id, s.code, s.secret, s.title, s.created_at, s.closed_at,
+            (SELECT count(*) FROM responses r WHERE r.session_id = s.id)::int AS response_count
+       FROM sessions s
+      ORDER BY s.created_at DESC`,
+  );
+  return rows.map((r) => ({ ...toSession(r), responseCount: r.response_count }));
+}
+
+/**
+ * Delete a session and every response in it. Irreversible.
+ * Postgres cascades through the foreign key; the in-memory store has no such
+ * mechanism, so it has to sweep the responses itself or they would outlive
+ * their session and be counted against a later one.
+ */
+export async function deleteSession(id: string): Promise<boolean> {
+  if (!hasDatabase()) {
+    const mem = memory();
+    const before = mem.sessions.length;
+    mem.sessions = mem.sessions.filter((s) => s.id !== id);
+    mem.responses = mem.responses.filter((r) => r.sessionId !== id);
+    return mem.sessions.length < before;
+  }
+  const rows = await query<{ id: string }>(`DELETE FROM sessions WHERE id = $1 RETURNING id`, [id]);
+  return rows.length > 0;
+}

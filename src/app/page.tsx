@@ -136,12 +136,13 @@ function CreatedPanel({ session }: { session: Created }) {
       <LinkRow name="Join screen — project this" href={presentUrl} />
       <LinkRow name="Results — facilitator only" href={resultsUrl} />
       <LinkRow name="Participant link" href={joinUrl} />
+
+      <AdminLinks />
     </Shell>
   );
 }
 
 function LinkRow({ name, href }: { name: string; href: string }) {
-  const [copied, setCopied] = useState(false);
   return (
     <div style={card}>
       <div style={label}>{name}</div>
@@ -158,36 +159,38 @@ function LinkRow({ name, href }: { name: string; href: string }) {
           wordBreak: "break-all",
           lineHeight: 1.6,
           display: "block",
-          marginBottom: "12px",
         }}
       >
         {href}
       </a>
-      <button
-        type="button"
-        onClick={async () => {
-          try {
-            await navigator.clipboard.writeText(href);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1600);
-          } catch {
-            setCopied(false);
-          }
-        }}
-        style={{
-          minHeight: "40px",
-          padding: "0 16px",
-          borderRadius: "8px",
-          border: `1px solid ${C.border}`,
-          background: C.bg,
-          color: C.t2,
-          fontSize: "13px",
-          fontFamily: FB,
-          cursor: "pointer",
-        }}
-      >
-        {copied ? "Copied" : "Copy link"}
-      </button>
+    </div>
+  );
+}
+
+/** The admin screens carry no session key, so they are plain links. */
+function AdminLinks() {
+  const item = {
+    minHeight: "44px",
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "0 16px",
+    borderRadius: "9px",
+    border: `1px solid ${C.border}`,
+    background: C.surface,
+    color: C.t2,
+    fontSize: "14px",
+    fontFamily: FB,
+    textDecoration: "none",
+  } as const;
+
+  return (
+    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "4px" }}>
+      <a href="/admin" target="_blank" rel="noopener noreferrer" style={item}>
+        Edit the questions
+      </a>
+      <a href="/admin/sessions" target="_blank" rel="noopener noreferrer" style={item}>
+        Past sessions
+      </a>
     </div>
   );
 }
