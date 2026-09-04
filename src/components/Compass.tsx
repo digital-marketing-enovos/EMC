@@ -203,17 +203,24 @@ export function Compass({
         const cx = sx(d.x);
         const cy = sy(d.y);
         if (d.kind === "today") {
+          const r = d.bold ? 6.5 : 5;
           return (
-            <circle
-              key={i}
-              cx={cx}
-              cy={cy}
-              r={d.bold ? 6 : 4}
-              fill="none"
-              stroke={d.bold ? C.today : C.t3}
-              strokeWidth={d.bold ? 2 : 1.2}
-              opacity={d.bold ? 1 : 0.55}
-            />
+            <g key={i}>
+              {/* A ring alone lets the quadrant lettering run straight through
+                  its middle, and it stops reading as a mark. The disc behind it
+                  knocks the label out; it stays translucent so a cluster of
+                  overlapping marks still reads as several, not one. */}
+              <circle cx={cx} cy={cy} r={r} fill={C.surface} opacity={d.bold ? 0.92 : 0.78} />
+              <circle
+                cx={cx}
+                cy={cy}
+                r={r}
+                fill="none"
+                stroke={C.today}
+                strokeWidth={d.bold ? 2.2 : 1.7}
+                opacity={d.bold ? 1 : 0.92}
+              />
+            </g>
           );
         }
         return (
@@ -234,7 +241,7 @@ export function Compass({
         <g transform={`translate(${pad}, ${size - 8})`}>
           {legend !== "tomorrow" && (
             <>
-              <circle cx="4" cy="-3" r="4" fill="none" stroke={C.today} strokeWidth="1.6" />
+              <circle cx="4" cy="-3" r="4.4" fill="none" stroke={C.today} strokeWidth="1.7" />
               <text x="13" y="0" fill={C.t3} fontSize="8.5" fontFamily={FB}>
                 Today
               </text>

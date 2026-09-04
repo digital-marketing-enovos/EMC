@@ -11,7 +11,7 @@ export const C = {
   border: "#DED9D0",
   accent: "#F18500", // Enovos orange — interaction only
   active: "#18140F",
-  today: "#9E988F",
+  today: "#6F6862", // ring for the "today" marks — darker than t3 so it holds up projected
   target: "#18140F",
   fire: "#C25A0C", // deliberately a darker ember than the accent
   water: "#2E7B96",
