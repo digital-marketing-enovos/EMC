@@ -100,6 +100,8 @@ export default function FacilitatorHome() {
           {busy ? "Creating…" : "Create session"}
         </button>
       </div>
+
+      <AdminLinks />
     </Shell>
   );
 }
