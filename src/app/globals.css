@@ -49,6 +49,22 @@ body {
   display: flex;
   gap: 14px;
 }
+/* Controls sit beside the matrix, not above it: on a 16:9 screen the matrix is
+   limited by height, so every row removed from the stack makes it bigger. */
+.rb-controls {
+  width: clamp(170px, 14vw, 225px);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.rb-controls .seg {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
 .rb-stage {
   flex: 1;
   min-width: 0;
@@ -87,6 +103,17 @@ body {
   }
   .rb-main {
     flex-direction: column;
+  }
+  .rb-controls {
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    overflow: visible;
+  }
+  .rb-controls .seg {
+    flex-direction: row;
+    align-items: center;
   }
   .rb-canvas {
     height: auto;

@@ -9,12 +9,15 @@ export function Segmented<T extends string>({
   options,
   label,
   scale = 1,
+  className,
 }: {
   value: T;
   onChange: (v: T) => void;
   options: [T, string][];
   label?: string;
   scale?: number;
+  /** Lets the stylesheet switch the group between a row and a column. */
+  className?: string;
 }) {
   const px = (v: number) => `${v * scale}px`;
   return (
@@ -36,6 +39,7 @@ export function Segmented<T extends string>({
       <div
         role="radiogroup"
         aria-label={label}
+        className={className}
         style={{
           display: "inline-flex",
           background: C.bg,

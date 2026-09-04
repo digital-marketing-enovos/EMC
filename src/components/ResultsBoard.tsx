@@ -60,7 +60,8 @@ export function ResultsBoard({
 
     if (who === "individual") {
       for (const r of rows) {
-        if (wantToday) dots.push({ x: r.today.x, y: r.today.y, kind: "today" });
+        if (wantToday)
+          dots.push({ x: r.today.x, y: r.today.y, kind: "today", label: r.label ?? undefined });
         if (wantTarget)
           dots.push({ x: r.target.x, y: r.target.y, kind: "target", label: r.label ?? undefined });
       }
@@ -68,13 +69,9 @@ export function ResultsBoard({
         for (const r of rows) {
           vectors.push({ x1: r.today.x, y1: r.today.y, x2: r.target.x, y2: r.target.y });
         }
-        vectors.push({
-          x1: stats.centroidToday.x,
-          y1: stats.centroidToday.y,
-          x2: stats.centroidTarget.x,
-          y2: stats.centroidTarget.y,
-          bold: true,
-        });
+        // No group-mean arrow here on purpose: this view is the fan of
+        // individual agendas, and a mean is an aggregate — which the Aggregate
+        // control gates behind a deliberate click.
       }
     } else {
       if (wantToday)
@@ -199,104 +196,93 @@ export function ResultsBoard({
         </div>
       </header>
 
-      {/* ── the two controls ─────────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          gap: "24px",
-          flexWrap: "wrap",
-          alignItems: "center",
-          flexShrink: 0,
-        }}
-      >
-        <Segmented<Who>
-          label="Whose data"
-          value={who}
-          onChange={chooseWho}
-          scale={1.3}
-          options={[
-            ["individual", "Individual"],
-            ["aggregate", "Aggregate"],
-          ]}
-        />
-        <Segmented<What>
-          label="What is shown"
-          value={what}
-          onChange={setWhat}
-          scale={1.3}
-          options={[
-            ["today", "Today"],
-            ["tomorrow", "Tomorrow"],
-            ["both", "Both + movement"],
-          ]}
-        />
-        <p style={{ fontSize: "15px", color: C.t2, margin: 0, flex: "1 1 220px" }}>
-          {CAPTIONS[who][what]}
-        </p>
-      </div>
-
-      {askAggregate && (
-        <div
-          style={{
-            background: C.surface,
-            border: `1.5px solid ${C.accent}66`,
-            borderRadius: "12px",
-            padding: "12px 18px",
-            display: "flex",
-            gap: "16px",
-            alignItems: "center",
-            flexWrap: "wrap",
-            flexShrink: 0,
-          }}
-        >
-          <p style={{ fontSize: "15px", color: C.t2, margin: 0, flex: "1 1 420px", lineHeight: 1.6 }}>
-            Show the centroid? A centre of gravity on a scattered cloud is an average, not a consensus
-            — discuss the spread first.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setAggregateUnlocked(true);
-              setWho("aggregate");
-              setAskAggregate(false);
-            }}
-            style={{
-              minHeight: "44px",
-              padding: "0 20px",
-              borderRadius: "8px",
-              border: "none",
-              background: C.accent,
-              color: "#fff",
-              fontSize: "15px",
-              fontWeight: 600,
-              fontFamily: FB,
-              cursor: "pointer",
-            }}
-          >
-            Show aggregate
-          </button>
-          <button
-            type="button"
-            onClick={() => setAskAggregate(false)}
-            style={{
-              minHeight: "44px",
-              padding: "0 16px",
-              borderRadius: "8px",
-              border: `1.5px solid ${C.border}`,
-              background: C.bg,
-              color: C.t2,
-              fontSize: "15px",
-              fontFamily: FB,
-              cursor: "pointer",
-            }}
-          >
-            Not yet
-          </button>
-        </div>
-      )}
-
-      {/* ── the matrix, given every remaining pixel ───────────── */}
+      {/* ── matrix, with the controls beside it ─────────── */}
       <div className="rb-main">
+        <aside className="rb-controls">
+          <Segmented<Who>
+            label="Whose data"
+            value={who}
+            onChange={chooseWho}
+            scale={1.25}
+            className="seg"
+            options={[
+              ["individual", "Individual"],
+              ["aggregate", "Aggregate"],
+            ]}
+          />
+          <Segmented<What>
+            label="What is shown"
+            value={what}
+            onChange={setWhat}
+            scale={1.25}
+            className="seg"
+            options={[
+              ["today", "Today"],
+              ["tomorrow", "Tomorrow"],
+              ["both", "Both + movement"],
+            ]}
+          />
+          <p style={{ fontSize: "14px", color: C.t2, margin: 0, lineHeight: 1.55 }}>
+            {CAPTIONS[who][what]}
+          </p>
+
+          {askAggregate && (
+            <div
+              style={{
+                background: C.surface,
+                border: `1.5px solid ${C.accent}66`,
+                borderRadius: "12px",
+                padding: "14px 16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }}
+            >
+              <p style={{ fontSize: "13.5px", color: C.t2, margin: 0, lineHeight: 1.55 }}>
+                Show the centroid? A centre of gravity on a scattered cloud is an average, not a
+                consensus — discuss the spread first.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setAggregateUnlocked(true);
+                  setWho("aggregate");
+                  setAskAggregate(false);
+                }}
+                style={{
+                  minHeight: "42px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: C.accent,
+                  color: "#fff",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  fontFamily: FB,
+                  cursor: "pointer",
+                }}
+              >
+                Show aggregate
+              </button>
+              <button
+                type="button"
+                onClick={() => setAskAggregate(false)}
+                style={{
+                  minHeight: "38px",
+                  borderRadius: "8px",
+                  border: `1.5px solid ${C.border}`,
+                  background: C.bg,
+                  color: C.t2,
+                  fontSize: "14px",
+                  fontFamily: FB,
+                  cursor: "pointer",
+                }}
+              >
+                Not yet
+              </button>
+            </div>
+          )}
+        </aside>
+
         <div className="rb-stage">
           <div
             className="rb-canvas"

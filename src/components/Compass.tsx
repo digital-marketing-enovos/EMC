@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { C, FB, FM } from "@/lib/theme";
 
 export type Dot = {
@@ -36,6 +37,11 @@ export function Compass({
   fill?: boolean;
   legend?: Legend;
 }) {
+  // Initials are shown on hover rather than pinned to every mark: printed
+  // permanently they collide with each other and with the dots themselves,
+  // exactly where the cloud is densest and reading it matters most.
+  const [hovered, setHovered] = useState<number | null>(null);
+
   const pad = 46;
   const inner = size - pad * 2;
   const sx = (v: number) => pad + ((v - 1) / 4) * inner;
@@ -202,10 +208,24 @@ export function Compass({
       {dots.map((d, i) => {
         const cx = sx(d.x);
         const cy = sy(d.y);
+        const on = hovered === i;
+        const enter = d.label
+          ? {
+              onMouseEnter: () => setHovered(i),
+              onMouseLeave: () => setHovered((h) => (h === i ? null : h)),
+              style: { cursor: "pointer" as const },
+            }
+          : {};
+
+        const hit = d.label ? (
+          <circle cx={cx} cy={cy} r={11} fill="transparent" />
+        ) : null;
+
         if (d.kind === "today") {
           const r = d.bold ? 6.5 : 5;
           return (
-            <g key={i}>
+            <g key={i} {...enter}>
+              {on && <circle cx={cx} cy={cy} r={r + 5} fill={C.accent} opacity={0.22} />}
               {/* A ring alone lets the quadrant lettering run straight through
                   its middle, and it stops reading as a mark. The disc behind it
                   knocks the label out; it stays translucent so a cluster of
@@ -216,26 +236,58 @@ export function Compass({
                 cy={cy}
                 r={r}
                 fill="none"
-                stroke={C.today}
+                stroke={on ? C.accent : C.today}
                 strokeWidth={d.bold ? 2.2 : 1.7}
                 opacity={d.bold ? 1 : 0.92}
               />
+              {hit}
             </g>
           );
         }
         return (
-          <g key={i}>
+          <g key={i} {...enter}>
             {d.bold && <circle cx={cx} cy={cy} r="13" fill={C.target} opacity="0.07" />}
-            <circle cx={cx} cy={cy} r={d.bold ? 6.5 : 4} fill={C.target} opacity={d.bold ? 1 : 0.6} />
+            {on && <circle cx={cx} cy={cy} r={9} fill={C.accent} opacity={0.22} />}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={d.bold ? 6.5 : 4}
+              fill={on ? C.accent : C.target}
+              opacity={d.bold ? 1 : on ? 1 : 0.6}
+            />
             {d.bold && <circle cx={cx} cy={cy} r="2.6" fill={C.surface} />}
-            {d.label && (
-              <text x={cx} y={cy - 11} textAnchor="middle" fill={C.t2} fontSize="8" fontFamily={FM}>
-                {d.label}
-              </text>
-            )}
+            {hit}
           </g>
         );
       })}
+
+      {/* Drawn after every mark so it is never covered by one, and inert so it
+          cannot steal the pointer from the dot underneath it. */}
+      {(() => {
+        const d = hovered === null ? null : dots[hovered];
+        if (!d?.label) return null;
+        const cx = sx(d.x);
+        const cy = sy(d.y);
+        const w = d.label.length * 5.4 + 12;
+        const x = Math.min(Math.max(cx - w / 2, 2), size - w - 2);
+        const above = cy - 24 > 2;
+        const y = above ? cy - 24 : cy + 10;
+        return (
+          <g pointerEvents="none">
+            <rect x={x} y={y} width={w} height={16} rx={8} fill={C.text} opacity={0.92} />
+            <text
+              x={x + w / 2}
+              y={y + 11.4}
+              textAnchor="middle"
+              fill={C.surface}
+              fontSize="9.5"
+              fontFamily={FM}
+            >
+              {d.label}
+            </text>
+          </g>
+        );
+      })()}
 
       {legend !== "none" && (
         <g transform={`translate(${pad}, ${size - 8})`}>
